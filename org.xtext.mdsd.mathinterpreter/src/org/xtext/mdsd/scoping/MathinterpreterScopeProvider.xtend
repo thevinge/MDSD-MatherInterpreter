@@ -3,6 +3,15 @@
  */
 package org.xtext.mdsd.scoping
 
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EReference
+import org.eclipse.xtext.scoping.IScope
+import org.eclipse.xtext.scoping.Scopes
+import org.xtext.mdsd.mathinterpreter.Expression
+import org.xtext.mdsd.mathinterpreter.FunctionalBind
+import org.xtext.mdsd.mathinterpreter.MathinterpreterPackage
+
+import static extension java.util.Collections.singleton
 
 /**
  * This class contains custom scoping description.
@@ -11,5 +20,25 @@ package org.xtext.mdsd.scoping
  * on how and when to use it.
  */
 class MathinterpreterScopeProvider extends AbstractMathinterpreterScopeProvider {
-
+	override getScope(EObject context, EReference reference) {
+		if (reference == MathinterpreterPackage.eINSTANCE.varReference_Variable) {
+			System.out.println("Test")
+			return context.scope
+		}
+		return super.getScope(context, reference)
+	}
+	
+	def private IScope getScope(EObject context) {
+		val container = context.eContainer
+		
+		return switch (container) {
+					
+			FunctionalBind case context instanceof Expression: Scopes.scopeFor(
+				container.variable.singleton,
+				container.scope
+			)
+			default: container.scope
+			
+		}
+	}
 }

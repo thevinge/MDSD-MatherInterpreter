@@ -3,27 +3,24 @@
  */
 package org.xtext.mdsd.generator
 
+import java.util.HashMap
+import javax.swing.JOptionPane
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
-
-import javax.swing.JOptionPane
+import org.xtext.mdsd.mathinterpreter.Divi
+import org.xtext.mdsd.mathinterpreter.Expression
 import org.xtext.mdsd.mathinterpreter.MathExp
-import org.xtext.mdsd.mathinterpreter.Plus
-import org.xtext.mdsd.mathinterpreter.Num
 import org.xtext.mdsd.mathinterpreter.Minus
 import org.xtext.mdsd.mathinterpreter.Mult
-import org.xtext.mdsd.mathinterpreter.Divi
-import org.xtext.mdsd.mathinterpreter.varBindUse
-import java.util.Map
-import java.util.HashMap
-
-import java.util.Iterator
-import org.xtext.mdsd.mathinterpreter.Expression
-import org.xtext.mdsd.mathinterpreter.VarBind
-
-//import org.xtext.mdsd.mathinterpreter.Primary
+import org.xtext.mdsd.mathinterpreter.Plus
+import org.xtext.mdsd.mathinterpreter.constant
+import org.xtext.mdsd.mathinterpreter.Parenthesis
+import org.xtext.mdsd.mathinterpreter.VarReference
+import org.xtext.mdsd.mathinterpreter.Binary
+import org.xtext.mdsd.mathinterpreter.FunctionalBind
+import org.xtext.mdsd.mathinterpreter.Variable
 
 /**
  * Generates code from your model files on save.
@@ -32,7 +29,6 @@ import org.xtext.mdsd.mathinterpreter.VarBind
  */
 class MathinterpreterGenerator extends AbstractGenerator {
 
-	
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		
 		
@@ -43,57 +39,52 @@ class MathinterpreterGenerator extends AbstractGenerator {
 		JOptionPane.showMessageDialog(null, "result = "+result,"Math Language", JOptionPane.INFORMATION_MESSAGE)
 	}
 	
-	
-	//
-	// Compute function: computes value of expression
-	// Note: written according to illegal left-recursive grammar, requires fix
-	//
-	
 	def int compute(MathExp math) { 
-		val bindings = new HashMap<String, Integer>()
-		math.exp.computeExp(bindings)
 		
+		math.exp.computeExp		
 	}
 	
-	def int computeExp(Expression exp, HashMap<String, Integer> bindings) {
-		switch (exp){
-			Num: exp.value
-			Plus: (exp.left.computeExp(bindings)) + (exp.right.computeExp(bindings))
-			Minus: (exp.left.computeExp(bindings)) - (exp.right.computeExp(bindings))
-			Mult: (exp.left.computeExp(bindings)) * (exp.right.computeExp(bindings))
-			Divi: (exp.left.computeExp(bindings)) / (exp.right.computeExp(bindings))
-			varBindUse: bindings.get(exp.varName)
-			VarBind: exp.body.computeExp(bindings.Update(exp.varName, exp.bindingValue.computeExp(bindings)))
+	def dispatch int computeExp(Binary exp) {
+		val left = exp.left.computeExp
+		switch exp.operator {
+			Plus: left+exp.right.computeExp
+			Minus: left-exp.right.computeExp
+			Mult: left*exp.right.computeExp
+			Divi: left/exp.right.computeExp
+			default: left
 		}
 	}
-	
-	def HashMap<String, Integer> Update(HashMap<String, Integer> old, String key, int value){
-		val updatedBindings = new HashMap<String, Integer>(old)
-		updatedBindings.put(key,value)
-		updatedBindings
+
+	def dispatch int computeExp(FunctionalBind reference){
+		reference.body.computeExp
 	}
 	
-
-	//
-	// Display function: show complete syntax tree
-	// Note: written according to illegal left-recursive grammar, requires fix
-	//
-
-	def CharSequence display(MathExp math) '''Math[«math.exp.displayExp»]'''
-	def CharSequence displayExp(Expression exp) {
-		'('+
-		switch (exp){
-			Num: exp.value
-			Plus: '''«(exp.left.displayExp)» + «(exp.right.displayExp)»'''
-			Minus: '''«(exp.left.displayExp)» - «(exp.right.displayExp)»'''
-			Mult: '''«(exp.left.displayExp)» * «(exp.right.displayExp)»'''
-			Divi: '''«(exp.left.displayExp)» / «(exp.right.displayExp)»'''
-			varBindUse: exp.varName
-			VarBind: '''let «exp.varName» = «exp.bindingValue» in «exp.body.displayExp»;'''
-		}
-		+ ')'
+	def dispatch int computeExp(VarReference reference){
+		reference.variable.expression.computeExp
 	}
 	
+	def dispatch int computeExp(constant constant){
+		constant.value
+	}
+	
+	def dispatch int computeExp(Parenthesis parenthesis){
+		parenthesis.expression.computeExp
+	}
+	
+	def CharSequence display(MathExp math) '''«math.exp.displayExp»'''
+	
+	def dispatch CharSequence displayExp(Binary binary) '''«binary.left.displayExp» «binary.operator.displayOp» «binary.right.displayExp»'''
+	def dispatch CharSequence displayExp(Parenthesis parenthesis) '''(«parenthesis.expression.displayExp»)'''
+	def dispatch CharSequence displayExp(constant num) '''«num.value»'''
+	def dispatch CharSequence displayExp(FunctionalBind functional) '''let «functional.variable.displayVar» in («functional.body.displayExp»);'''
+	def dispatch CharSequence displayExp(VarReference reference) '''«reference.variable.name»'''
+	
+	def CharSequence displayVar(Variable variable) '''«variable.name» = «variable.expression.displayExp»'''
+	
+	def dispatch CharSequence displayOp(Plus op) '''+'''
+	def dispatch CharSequence displayOp(Minus op) '''-'''
+	def dispatch CharSequence displayOp(Mult op) '''*'''
+	def dispatch CharSequence displayOp(Divi op) '''/'''
 	
 	
 	

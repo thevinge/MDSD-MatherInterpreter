@@ -7,30 +7,43 @@ MathExp:
 ;
 
 Exp returns Expression: 
-	Primary ({Plus.left=current} '+' right=Primary | {Minus.left=current} '-' right=Primary)* 
+	Factors ({Binary.left=current} operator=AddSubOperator right=Factors)* 
 ;
 
-Primary returns Expression:
-	Primitive ({Mult.left=current} '*' right=Primary | {Divi.left=current} '/' right=Primary)* 
+Factors returns Expression:
+	FunctionalBind ({Binary.left=current} operator=MultDivOperator right=FunctionalBind)* 
+;
+
+MultDivOperator returns MathOperator:
+	{Mult} '*' | {Divi} '/'
+;
+
+
+AddSubOperator returns MathOperator:
+	{Plus} '+' | {Minus} '-'
 ;
 
 Primitive returns Expression:
-	Num | Parenthesis | VarBind | VarBindUse		
+	constant | Parenthesis | VarReference		
 ;
 
-VarBindUse returns Expression:
-	{varBindUse} varName=ID	
+VarReference:
+	variable=[Variable]
 ;
 
-VarBind returns Expression:
-	{VarBind} 'let' varName=ID '=' bindingValue=Exp 'in' body=Exp ';'
+FunctionalBind returns Expression:
+	 {FunctionalBind} 'let' variable=Variable 'in' body=Exp ';' | Primitive
 ;
 
-Parenthesis returns Expression:
-	'(' Exp ')'	
+Variable:
+	name=ID '=' expression=Exp
 ;
 
-Num:
+Parenthesis:
+	'(' expression=Exp ')'	
+;
+
+constant:
 	value=INT
 ;
 
