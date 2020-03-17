@@ -1,0 +1,36 @@
+grammar org.xtext.mdsd.Mathinterpreter with org.eclipse.xtext.common.Terminals
+
+generate mathinterpreter "http://www.xtext.org/mdsd/Mathinterpreter"
+
+MathExp:
+	'result' 'is' exp=Exp
+;
+
+Exp returns Expression: 
+	Primary ({Plus.left=current} '+' right=Primary | {Minus.left=current} '-' right=Primary)* 
+;
+
+Primary returns Expression:
+	Primitive ({Mult.left=current} '*' right=Primary | {Divi.left=current} '/' right=Primary)* 
+;
+
+Primitive returns Expression:
+	Num | Parenthesis | VarBind | VarBindUse		
+;
+
+VarBindUse returns Expression:
+	{varBindUse} varName=ID	
+;
+
+VarBind returns Expression:
+	{VarBind} 'let' varName=ID '=' bindingValue=Exp 'in' body=Exp ';'
+;
+
+Parenthesis returns Expression:
+	'(' Exp ')'	
+;
+
+Num:
+	value=INT
+;
+
