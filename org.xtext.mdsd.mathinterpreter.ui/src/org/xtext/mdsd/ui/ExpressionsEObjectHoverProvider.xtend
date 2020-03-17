@@ -37,9 +37,9 @@ class ExpressionsEObjectHoverProvider extends DefaultEObjectHoverProvider {
 				«obj.displayExp» = «obj.computeExp»
 				</p>
 			'''
-			VarReference: '''
+			Variable: '''
 				<p>
-				«obj.variable.name» = «obj.computeExp»
+				«obj.displayExp» 
 				</p>
 			'''
 			default:

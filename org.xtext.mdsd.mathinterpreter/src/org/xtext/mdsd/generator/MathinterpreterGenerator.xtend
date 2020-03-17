@@ -74,12 +74,11 @@ class MathinterpreterGenerator extends AbstractGenerator {
 	def CharSequence display(MathExp math) '''«math.exp.displayExp»'''
 	
 	def dispatch CharSequence displayExp(Binary binary) '''«binary.left.displayExp» «binary.operator.displayOp» «binary.right.displayExp»'''
-	def dispatch CharSequence displayExp(Parenthesis parenthesis) '''(«parenthesis.expression.displayExp»)'''
 	def dispatch CharSequence displayExp(constant num) '''«num.value»'''
-	def dispatch CharSequence displayExp(FunctionalBind functional) '''let «functional.variable.displayVar» in («functional.body.displayExp»);'''
+	def dispatch CharSequence displayExp(Parenthesis parenthesis) '''(«parenthesis.expression.displayExp»)'''
+	def dispatch CharSequence displayExp(FunctionalBind functional) '''let «functional.variable.displayExp» in («functional.body.displayExp»);'''
 	def dispatch CharSequence displayExp(VarReference reference) '''«reference.variable.name»'''
-	
-	def CharSequence displayVar(Variable variable) '''«variable.name» = «variable.expression.displayExp»'''
+	def CharSequence displayExp(Variable variable) '''«variable.name» = «variable.expression.displayExp»'''
 	
 	def dispatch CharSequence displayOp(Plus op) '''+'''
 	def dispatch CharSequence displayOp(Minus op) '''-'''

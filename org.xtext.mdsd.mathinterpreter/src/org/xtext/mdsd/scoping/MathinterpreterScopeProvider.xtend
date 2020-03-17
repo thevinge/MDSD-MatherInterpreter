@@ -12,6 +12,8 @@ import org.xtext.mdsd.mathinterpreter.FunctionalBind
 import org.xtext.mdsd.mathinterpreter.MathinterpreterPackage
 
 import static extension java.util.Collections.singleton
+import org.xtext.mdsd.mathinterpreter.MathExp
+import org.xtext.mdsd.mathinterpreter.Variable
 
 /**
  * This class contains custom scoping description.
@@ -22,7 +24,6 @@ import static extension java.util.Collections.singleton
 class MathinterpreterScopeProvider extends AbstractMathinterpreterScopeProvider {
 	override getScope(EObject context, EReference reference) {
 		if (reference == MathinterpreterPackage.eINSTANCE.varReference_Variable) {
-			System.out.println("Test")
 			return context.scope
 		}
 		return super.getScope(context, reference)
@@ -32,6 +33,9 @@ class MathinterpreterScopeProvider extends AbstractMathinterpreterScopeProvider 
 		val container = context.eContainer
 		
 		return switch (container) {
+			
+			MathExp: Scopes.scopeFor(
+				container.eContents.filter(Variable))
 					
 			FunctionalBind case context instanceof Expression: Scopes.scopeFor(
 				container.variable.singleton,
