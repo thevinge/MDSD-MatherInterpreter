@@ -5,7 +5,6 @@ package org.xtext.mdsd.ui
 
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 import org.eclipse.xtext.ui.editor.hover.IEObjectHoverProvider
-import org.xtext.mdsd.ui.ExpressionsEObjectHoverProvider
 
 /**
  * Use this class to register components to be used within the Eclipse IDE.
@@ -13,6 +12,6 @@ import org.xtext.mdsd.ui.ExpressionsEObjectHoverProvider
 @FinalFieldsConstructor
 class MathinterpreterUiModule extends AbstractMathinterpreterUiModule {
 	def Class<? extends IEObjectHoverProvider> bindIEObjectHoverProvider() {
-		return ExpressionsEObjectHoverProvider
+		return ExpressionsHoverProvider
 	}
 }

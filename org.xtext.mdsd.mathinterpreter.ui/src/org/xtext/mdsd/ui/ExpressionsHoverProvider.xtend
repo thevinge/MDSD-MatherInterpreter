@@ -15,7 +15,7 @@ import org.xtext.mdsd.mathinterpreter.FunctionalBind
 import org.xtext.mdsd.mathinterpreter.Variable
 import org.xtext.mdsd.mathinterpreter.VarReference
 
-class ExpressionsEObjectHoverProvider extends DefaultEObjectHoverProvider {
+class ExpressionsHoverProvider extends DefaultEObjectHoverProvider {
 
 	@Inject extension MathinterpreterGenerator
 
