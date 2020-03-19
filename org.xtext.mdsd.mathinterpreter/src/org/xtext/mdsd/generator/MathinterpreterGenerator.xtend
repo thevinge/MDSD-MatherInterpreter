@@ -30,62 +30,70 @@ import org.xtext.mdsd.mathinterpreter.Variable
 class MathinterpreterGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-		
-		
+
 		val math = resource.allContents.filter(MathExp).next
 		val result = math.compute
-		System.out.println("Math expression = "+math.display)
+		System.out.println("Math expression = " + math.display)
 		// For +1 score, replace with hovering, see Bettini Chapter 8
-		JOptionPane.showMessageDialog(null, "result = "+result,"Math Language", JOptionPane.INFORMATION_MESSAGE)
+		JOptionPane.showMessageDialog(null, "result = " + result, "Math Language", JOptionPane.INFORMATION_MESSAGE)
 	}
-	
-	def int compute(MathExp math) { 
-		
-		math.exp.computeExp		
+
+	def int compute(MathExp math) {
+
+		math.exp.computeExp
 	}
-	
+
 	def dispatch int computeExp(Binary exp) {
 		val left = exp.left.computeExp
 		switch exp.operator {
-			Plus: left+exp.right.computeExp
-			Minus: left-exp.right.computeExp
-			Mult: left*exp.right.computeExp
-			Divi: left/exp.right.computeExp
+			Plus: left + exp.right.computeExp
+			Minus: left - exp.right.computeExp
+			Mult: left * exp.right.computeExp
+			Divi: left / exp.right.computeExp
 			default: left
 		}
 	}
 
-	def dispatch int computeExp(FunctionalBind reference){
+	def dispatch int computeExp(FunctionalBind reference) {
 		reference.body.computeExp
 	}
-	
-	def dispatch int computeExp(VarReference reference){
+
+	def dispatch int computeExp(VarReference reference) {
 		reference.variable.expression.computeExp
 	}
-	
-	def dispatch int computeExp(constant constant){
+
+	def dispatch int computeExp(constant constant) {
 		constant.value
 	}
-	
-	def dispatch int computeExp(Parenthesis parenthesis){
+
+	def dispatch int computeExp(Parenthesis parenthesis) {
 		parenthesis.expression.computeExp
 	}
-	
+
 	def CharSequence display(MathExp math) '''«math.exp.displayExp»'''
-	
-	def dispatch CharSequence displayExp(Binary binary) '''«binary.left.displayExp» «binary.operator.displayOp» «binary.right.displayExp»'''
-	def dispatch CharSequence displayExp(constant num) '''«num.value»'''
-	def dispatch CharSequence displayExp(Parenthesis parenthesis) '''(«parenthesis.expression.displayExp»)'''
-	def dispatch CharSequence displayExp(FunctionalBind functional) '''let «functional.variable.displayExp» in («functional.body.displayExp»);'''
-	def dispatch CharSequence displayExp(VarReference reference) '''«reference.variable.name»'''
-	def CharSequence displayExp(Variable variable) '''«variable.name» = «variable.expression.displayExp»'''
-	
-	def dispatch CharSequence displayOp(Plus op) '''+'''
-	def dispatch CharSequence displayOp(Minus op) '''-'''
-	def dispatch CharSequence displayOp(Mult op) '''*'''
-	def dispatch CharSequence displayOp(Divi op) '''/'''
-	
-	
-	
-	
+
+	def dispatch CharSequence displayExp(Binary binary) {
+		'''«binary.left.displayExp» «binary.operator.displayOp» «binary.right.displayExp»'''
+	}
+
+	def dispatch CharSequence displayExp(constant num) { '''«num.value»''' }
+
+	def dispatch CharSequence displayExp(Parenthesis parenthesis) { '''(«parenthesis.expression.displayExp»)''' }
+
+	def dispatch CharSequence displayExp(FunctionalBind functional) {
+		'''let «functional.variable.displayExp» in («functional.body.displayExp»);'''
+	}
+
+	def dispatch CharSequence displayExp(VarReference reference) { '''«reference.variable.name»''' }
+
+	def dispatch CharSequence displayExp(Variable variable) { '''«variable.name» = «variable.expression.displayExp»''' }
+
+	def dispatch CharSequence displayOp(Plus op) { '''+''' }
+
+	def dispatch CharSequence displayOp(Minus op) { '''-''' }
+
+	def dispatch CharSequence displayOp(Mult op) { '''*''' }
+
+	def dispatch CharSequence displayOp(Divi op) { '''/''' }
+
 }
